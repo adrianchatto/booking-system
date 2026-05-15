@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SuperAdmin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model Tenant {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  businessName String
+  type         TenantType
+  status       TenantStatus   @default(ACTIVE)
+  settings     TenantSettings?
+  services     Service[]
+  customers    Customer[]
+  bookings     Booking[]
+  blockedSlots BlockedSlot[]
+  users        TenantUser[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+enum TenantType {
+  WINDOW_CLEANER
+  HAIRDRESSER
+  PERSONAL_TRAINER
+  PLUMBER
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model TenantSettings {
+  id              String   @id @default(cuid())
+  tenantId        String   @unique
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  primaryColor    String   @default("#3B82F6")
+  secondaryColor  String   @default("#1E40AF")
+  accentColor     String   @default("#F59E0B")
+  logoUrl         String?
+  heroImageUrl    String?
+  tagline         String?
+  description     String?
+  phone           String?
+  email           String?
+  address         String?
+  city            String?
+  openingHours    Json?
+  galleryImages   String[]
+  metaTitle       String?
+  metaDescription String?
+}
+
+model TenantUser {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email     String
+  password  String
+  name      String
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, email])
+}
+
+enum UserRole {
+  ADMIN
+  VIEWER
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  duration    Int
+  price       Decimal   @db.Decimal(10, 2)
+  active      Boolean   @default(true)
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  phone     String?
+  notes     String?
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+
+  @@unique([tenantId, email])
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  tenantId   String
+  tenant     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer      @relation(fields: [customerId], references: [id])
+  serviceId  String
+  service    Service       @relation(fields: [serviceId], references: [id])
+  startTime  DateTime
+  endTime    DateTime
+  status     BookingStatus @default(CONFIRMED)
+  notes      String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+model BlockedSlot {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  endTime   DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+}
