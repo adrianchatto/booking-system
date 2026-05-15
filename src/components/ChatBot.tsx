@@ -56,7 +56,7 @@ export default function ChatBot({ tenantSlug, businessName, primaryColor, accent
   }
 
   function cleanMessage(text: string): string {
-    return text.replace(/\[BOOKING_DATA\].*?\[\/BOOKING_DATA\]/s, '').trim()
+    return text.replace(/\[BOOKING_DATA\][\s\S]*?\[\/BOOKING_DATA\]/, '').trim()
   }
 
   async function processBooking(data: BookingData) {
