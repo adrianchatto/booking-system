@@ -4,14 +4,7 @@ import { useState, useEffect } from 'react'
 import { X, Calendar, Clock, User, Mail, Phone, CheckCircle2, Loader2 } from 'lucide-react'
 import { format, addDays, parseISO } from 'date-fns'
 import { formatCurrency } from '@/lib/utils'
-
-interface Service {
-  id: string
-  name: string
-  description: string | null
-  duration: number
-  price: number | string
-}
+import type { Service } from '@prisma/client'
 
 interface BookingModalProps {
   tenantSlug: string
