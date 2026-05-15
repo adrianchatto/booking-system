@@ -46,7 +46,7 @@ export default function ChatBot({ tenantSlug, businessName, primaryColor, accent
   }, [messages])
 
   function extractBookingData(text: string): BookingData | null {
-    const match = text.match(/\[BOOKING_DATA\](.*?)\[\/BOOKING_DATA\]/s)
+    const match = text.match(/\[BOOKING_DATA\]([\s\S]*?)\[\/BOOKING_DATA\]/)
     if (!match) return null
     try {
       return JSON.parse(match[1])
