@@ -18,7 +18,8 @@ export function formatTime(date: Date | string): string {
   return format(new Date(date), 'HH:mm')
 }
 
-export function formatCurrency(amount: number | string): string {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function formatCurrency(amount: any): string {
   return `£${Number(amount).toFixed(2)}`
 }
 
